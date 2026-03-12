@@ -1,7 +1,7 @@
 import express from 'express'
 import { connect } from 'mongoose'
 import { config } from 'dotenv'
-import { userRouter } from './APIs/UserAPI.js'
+import { userRouter } from './APIs/userAPI.js'
 import { authorRouter } from './APIs/AuthorAPI.js'
 import { adminRouter } from './APIs/AdminAPI.js'
 import cookieParser from 'cookie-parser'
