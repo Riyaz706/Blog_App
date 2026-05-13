@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
+import axios from '../config/axiosInstance';
 
 export const authStore = create((set, get) => ({
   currentUser: null,
@@ -11,7 +11,7 @@ export const authStore = create((set, get) => ({
     const { role, ...userCred } = userCredWithRole;
     try {
       set({ loading: true, error: null });
-      const res = await axios.post("http://localhost:4000/common-api/login", userCred, { withCredentials: true });
+      const res = await axios.post("/common-api/login", userCred);
       console.log("Login Response:", res.data);
 
       set({
@@ -34,7 +34,7 @@ export const authStore = create((set, get) => ({
   logout: async () => {
     set({ loading: true, error: null });
     try {
-      await axios.get("http://localhost:4000/common-api/logout", { withCredentials: true });
+      await axios.get("/common-api/logout");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -44,6 +44,27 @@ export const authStore = create((set, get) => ({
         error: null,
         isAuthenticated: false
       });
+    }
+  },
+  verifyAuth:async()=>{
+    try {
+      set({loading:true,error:null})
+      const res = await axios.get("/common-api/check-auth");
+      set({
+        loading:false,
+        error:null,
+        isAuthenticated:true,
+        currentUser:res.data.payload
+      })
+    } catch (error) {
+      console.error("Verify Auth Error:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Verify Auth failed";
+      set({
+        loading:false,
+        error:errorMessage,
+        isAuthenticated:false,
+        currentUser:null
+      })
     }
   }
 }));

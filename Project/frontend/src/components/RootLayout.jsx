@@ -11,10 +11,14 @@ import {
 } from '../styles/common';
 import { toast } from 'react-hot-toast';
 import { authStore } from '../store/authStore';
+import { useEffect } from 'react';
 
 function RootLayout() {
-    const { isAuthenticated, currentUser, logout } = authStore();
+    const { isAuthenticated, currentUser, logout, verifyAuth } = authStore();
     const navigate = useNavigate();
+    useEffect(()=>{
+        verifyAuth();
+    },[])
 
     const handleLogout = async () => {
         await logout();
@@ -71,11 +75,32 @@ function RootLayout() {
                                         Add Article
                                     </NavLink>
                                 )}
+                                {currentUser.role === 'ADMIN' && (
+                                    <NavLink 
+                                        to="/admin-dashboard" 
+                                        className={({ isActive }) => isActive ? navLinkActiveClass : navLinkClass}
+                                    >
+                                        Dashboard
+                                    </NavLink>
+                                )}
                                 <NavLink 
                                     to={getProfilePath()} 
-                                    className={({ isActive }) => isActive ? navLinkActiveClass : navLinkClass}
+                                    title="Profile"
+                                    style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
                                 >
-                                    Profile
+                                    {currentUser?.profileImageURL ? (
+                                        <img
+                                            src={currentUser.profileImageURL}
+                                            alt="Profile"
+                                            className="w-10 h-10 rounded-full object-cover border-2 border-primary/20 hover:shadow-[0_0_0_3px_rgba(25,28,29,0.05)] transition-all"
+                                        />
+                                    ) : (
+                                        <div 
+                                            className="w-10 h-10 rounded-full flex items-center justify-center text-on-primary font-inter font-bold text-sm border-2 border-primary/20 bg-linear-to-br from-primary to-primary-container hover:shadow-[0_0_0_3px_rgba(25,28,29,0.05)] transition-all shrink-0"
+                                        >
+                                            {currentUser?.firstName?.charAt(0).toUpperCase() || '?'}
+                                        </div>
+                                    )}
                                 </NavLink>
                                 <button
                                     onClick={handleLogout}

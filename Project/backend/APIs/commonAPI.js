@@ -62,3 +62,9 @@ commonRouter.put("/change-password", verifyToken, async (req, res) => {
     //send response
     res.status(200).json({ message: "Password changed successfully" })
 })
+
+commonRouter.get("/check-auth", verifyToken, async (req, res) => {
+    const user = await UserModel.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.status(200).json({ message: "authenticated", payload: user });
+})

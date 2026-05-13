@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios';
+import axios from '../config/axiosInstance';
 import {
   pageWrapper,
   pageTitleClass,
@@ -20,15 +20,10 @@ function Home() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLoading(false);
-      return;
-    }
-
     const fetchArticles = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://localhost:4000/user-api/read-articles', { withCredentials: true });
+        const res = await axios.get('/user-api/read-articles');
         setArticles(res.data.payload || []);
       } catch (err) {
         console.error('Error fetching articles:', err);
@@ -39,8 +34,7 @@ function Home() {
     };
 
     fetchArticles();
-  }, [isAuthenticated]);
-
+  }, []);
   const greeting = isAuthenticated && currentUser 
     ? `Hello, ${currentUser.firstName}!` 
     : 'Welcome to our Blog';
@@ -51,9 +45,7 @@ function Home() {
         <h1 className={pageTitleClass}>{greeting}</h1>
       </header>
 
-      {!isAuthenticated ? (
-        <div className={emptyStateClass}>Please sign in to view the latest articles.</div>
-      ) : loading ? (
+      {loading ? (
         <div className={loadingClass}>Loading latest articles...</div>
       ) : error ? (
         <div className={emptyStateClass}>{error}</div>

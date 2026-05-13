@@ -11,6 +11,8 @@ import AdminDashboard from './components/AdminDashboard'
 import UserProfile from './components/UserProfile'
 import AuthorProfile from './components/AuthorProfile'
 import AdminProfile from './components/AdminProfile'
+import ArticleDetail from './components/ArticleDetail'
+import EditArticle from './components/EditArticle'
 import { Toaster } from 'react-hot-toast'
 
 function App() {
@@ -58,7 +60,19 @@ function App() {
                 {
                     path: "admin-profile",
                     element: <AdminProfile />,
-                }
+                },
+                {
+                    path: "article/:id",
+                    element: <ArticleDetail />,
+                },
+                {
+                    path: "edit-article/:id",
+                    element: <EditArticle />,
+                },
+                {
+                    path: "admin-dashboard",
+                    element: <AdminDashboard />,
+                },
             ],
         },
     ]);

@@ -13,7 +13,7 @@ config()//process .env
 
 const app = express()
 app.use(cors({
-    origin: ['http://localhost:5173'],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
     credentials: true
 }))
 
@@ -22,10 +22,19 @@ app.use(express.json())
 app.use(cookieParser())
 
 //connect APIs
+app.use((req, res, next) => {
+    console.log(`[REQUEST] ${req.method} ${req.url}`);
+    next();
+});
 app.use('/user-api', userRouter)
 app.use('/author-api', authorRouter)
 app.use('/admin-api', adminRouter)
 app.use('/common-api', commonRouter)
+
+//root route
+app.get('/', (req, res) => {
+    res.send({ message: "Blog API is running" })
+})
 
 //test route
 app.get('/test', (req, res) => {

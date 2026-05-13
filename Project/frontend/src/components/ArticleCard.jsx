@@ -6,7 +6,9 @@ import {
   articleExcerpt,
   articleMeta,
   tagClass,
-  timestampClass
+  timestampClass,
+  primaryBtn,
+  secondaryBtn
 } from '../styles/common';
 import { authStore } from '../store/authStore';
 
@@ -26,21 +28,21 @@ function ArticleCard({ article }) {
       <h3 className={articleTitle}>{title}</h3>
       <p className={articleExcerpt}>{content}</p>
       
-      <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="mt-4 pt-4 border-t border-outline-variant/15">
         <div className={articleMeta}>
-          By <span className="font-medium text-gray-900">{author?.firstName} {author?.lastName}</span>
-          <p className="text-xs text-gray-500 mt-0.5">Updated: {new Date(article.updatedAt).toLocaleString()}</p>
+          By <span className="font-semibold text-on-surface">{author?.firstName} {author?.lastName}</span>
+          <p className="text-xs text-on-surface-variant/70 mt-1">Updated: {new Date(article.updatedAt).toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
           <button 
-            className='bg-blue-600 text-white px-4 py-2 rounded-md mt-3 hover:bg-blue-700 transition w-full text-sm font-medium' 
+            className={`${primaryBtn} mt-4 w-full`} 
             onClick={() => navigate(`/article/${article._id}`)}
           >
             Read More
           </button>
       {/*if author then we can update the article*/}
-      {currentUser.role === 'AUTHOR' && (
+      {currentUser?.role === 'AUTHOR' && (
         <button 
-          className='bg-blue-600 text-white px-4 py-2 rounded-md mt-3 hover:bg-blue-700 transition w-full text-sm font-medium' 
-          onClick={() => navigate(`/article/${article._id}`)}
+          className={`${secondaryBtn} mt-2 w-full`} 
+          onClick={() => navigate(`/edit-article/${article._id}`)}
         >
           Update Article
         </button>

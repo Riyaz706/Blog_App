@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from '../config/axiosInstance';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { authStore } from '../store/authStore';
 import {
   formCard,
@@ -11,42 +11,85 @@ import {
   inputClass,
   formGroup,
   submitBtn,
-  pageWrapper
+  pageWrapper,
+  loadingClass
 } from '../styles/common';
 
-function AddArticle() {
+function EditArticle() {
+  const { id } = useParams();
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm();
   
   const { currentUser } = authStore();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`/user-api/article/${id}`);
+        const article = res.data.payload;
+        
+        // Verify ownership (optional extra check on frontend)
+        if (article.author._id !== currentUser._id) {
+            toast.error("You can only edit your own articles.");
+            navigate('/');
+            return;
+        }
+
+        setValue('title', article.title);
+        setValue('category', article.category);
+        setValue('content', article.content);
+      } catch (err) {
+        console.error('Error fetching article:', err);
+        toast.error('Failed to load article data');
+        navigate('/');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (currentUser) {
+      fetchArticle();
+    }
+  }, [id, currentUser, setValue, navigate]);
 
   const onSubmit = async (data) => {
     try {
       const articleObj = {
-        ...data,
-        author: currentUser._id,
+        articleId: id,
+        ...data
       };
 
-      const res = await axios.post('/author-api/articles', articleObj);
+      const res = await axios.put('/author-api/articles', articleObj);
 
       if (res.status === 201) {
-        toast.success('Article published!');
-        navigate('/');
+        toast.success('Article updated successfully!');
+        navigate(`/article/${id}`);
       }
     } catch (err) {
-      console.error('Error publishing article:', err);
-      toast.error(err.response?.data?.message || 'Failed to publish article');
+      console.error('Error updating article:', err);
+      toast.error(err.response?.data?.message || 'Failed to update article');
     }
   };
+
+  if (loading) {
+    return (
+      <div className={pageWrapper}>
+        <div className={loadingClass}>Loading article data...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={pageWrapper}>
       <div className={formCard}>
-        <h2 className={formTitle}>Create New Article</h2>
+        <h2 className={formTitle}>Edit Article</h2>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className={formGroup}>
@@ -65,7 +108,6 @@ function AddArticle() {
             <select
               {...register('category', { required: 'Category is required' })}
               className={inputClass}
-              defaultValue=""
             >
               <option value="" disabled>Select category</option>
               <option value="Programming">Programming</option>
@@ -90,7 +132,7 @@ function AddArticle() {
             type="submit"
             className={submitBtn}
           >
-            Publish Article
+            Update Article
           </button>
         </form>
       </div>
@@ -98,4 +140,4 @@ function AddArticle() {
   );
 }
 
-export default AddArticle;
+export default EditArticle;

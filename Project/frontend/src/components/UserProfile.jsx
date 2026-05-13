@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from '../config/axiosInstance';
 import { authStore } from '../store/authStore';
 import {
   pageWrapper,
@@ -24,7 +24,7 @@ function UserProfile() {
     const fetchArticles = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://localhost:4000/user-api/read-articles', { withCredentials: true });
+        const res = await axios.get('/user-api/read-articles');
         setArticles(res.data.payload || []);
       } catch (err) {
         console.error('Error fetching articles:', err);

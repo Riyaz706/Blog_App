@@ -69,4 +69,3 @@ export const login = async (userCredentials) => {
     //send response
     return { token, user };
 };
-

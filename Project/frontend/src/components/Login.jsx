@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -28,9 +28,16 @@ function Login() {
     }
   });
 
+  // Track if the user actually submitted the form (vs. auto-restored session)
+  const submittedRef = useRef(false);
+
   useEffect(() => {
     if (isAuthenticated && currentUser) {
-      toast.success(`Welcome back, ${currentUser.firstName}!`);
+      // Only show welcome toast if login was triggered by form submission
+      if (submittedRef.current) {
+        toast.success(`Welcome back, ${currentUser.firstName}!`, { id: 'login-success' });
+        submittedRef.current = false;
+      }
       // Redirect based on role to profile pages
       if (currentUser.role === 'AUTHOR') {
         navigate('/author-profile');
@@ -43,12 +50,14 @@ function Login() {
   }, [isAuthenticated, currentUser, navigate]);
 
   useEffect(() => {
-    if (error) {
-      toast.error(error);
+    if (error && submittedRef.current) {
+      toast.error(error, { id: 'login-error' });
+      submittedRef.current = false;
     }
   }, [error]);
 
   const onSubmit = (data) => {
+    submittedRef.current = true;
     login(data);
   };
 
@@ -59,40 +68,7 @@ function Login() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Role Selection */}
-          <div className={formGroup}>
-            <label className={labelClass}>Select Role</label>
-            <div className="flex items-center gap-6 mt-2">
-              <label className="flex items-center cursor-pointer gap-2">
-                <input
-                  type="radio"
-                  value="USER"
-                  {...register('role', { required: 'Role is required' })}
-                  className="w-4 h-4 accent-blue-600"
-                />
-                <span className="text-sm text-gray-700">User</span>
-              </label>
-              <label className="flex items-center cursor-pointer gap-2">
-                <input
-                  type="radio"
-                  value="AUTHOR"
-                  {...register('role', { required: 'Role is required' })}
-                  className="w-4 h-4 accent-blue-600"
-                />
-                <span className="text-sm text-gray-700">Author</span>
-              </label>
-              <label className="flex items-center cursor-pointer gap-2">
-                <input
-                  type="radio"
-                  value="ADMIN"
-                  {...register('role', { required: 'Role is required' })}
-                  className="w-4 h-4 accent-blue-600"
-                />
-                <span className="text-sm text-gray-700">Admin</span>
-              </label>
-            </div>
-          </div>
-          {errors.role && <p className="text-red-500 text-xs mt-2 text-center">{errors.role.message}</p>}
-
+          
           {/* Email */}
           <div className={formGroup}>
             <label className={labelClass}>Email Address</label>
@@ -140,3 +116,4 @@ function Login() {
 }
 
 export default Login;
+
