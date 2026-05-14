@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../config/axiosInstance';
-import { pageWrapper, inputClass, submitBtn, loadingClass, emptyStateClass, articleTitle, articleBody, articleMeta, tagClass, ghostBtn, secondaryBtn } from '../styles/common';
+import { pageWrapper, inputClass, submitBtn, loadingClass, emptyStateClass, articleTitle, articleBody, articleMeta, tagClass, ghostBtn, secondaryBtn, primaryBtn } from '../styles/common';
 import { authStore } from '../store/authStore';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
@@ -101,6 +101,17 @@ function ArticleDetail() {
     }
   };
 
+  const handleDeleteArticle = async () => {
+    if (!window.confirm("Are you sure you want to delete this article? This action cannot be undone.")) return;
+    try {
+      await axios.patch(`/author-api/articles/${id}`);
+      toast.success("Article deleted successfully!");
+      navigate('/author-profile');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to delete article');
+    }
+  };
+
   if (loading) {
     return (
       <div className={pageWrapper}>
@@ -132,13 +143,33 @@ function ArticleDetail() {
   return (
     <div className={pageWrapper}>
       <div className="max-w-3xl mx-auto bg-surface-container-low rounded-3xl p-8 md:p-12 shadow-[0_20px_40px_rgba(25,28,29,0.05)]">
-        {/* Back button */}
-        <button
-          onClick={() => navigate(-1)}
-          className={`${ghostBtn} mb-12 inline-flex items-center gap-2`}
-        >
-          ← Back to Articles
-        </button>
+        {/* Back button + Author Actions */}
+        <div className="flex items-center justify-between mb-12">
+          <button
+            onClick={() => navigate(-1)}
+            className={`${ghostBtn} inline-flex items-center gap-2`}
+          >
+            ← Back to Articles
+          </button>
+
+          {/* Edit & Delete — only visible to article owner */}
+          {currentUser?.role === 'AUTHOR' && currentUser?._id === article?.author?._id && (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(`/edit-article/${id}`)}
+                className={secondaryBtn}
+              >
+                ✏️ Edit
+              </button>
+              <button
+                onClick={handleDeleteArticle}
+                className="font-inter font-medium px-5 py-2.5 rounded-md bg-red-50 text-red-600 text-sm hover:bg-red-600 hover:text-white transition-all duration-300 cursor-pointer"
+              >
+                🗑️ Delete
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Category tag */}
         {category && (
