@@ -75,7 +75,13 @@ function AuthorProfile() {
         ) : (
           <div className={articleGrid}>
             {articles.map((article) => (
-              <ArticleCard key={article._id} article={article} />
+              <ArticleCard
+                key={article._id}
+                article={article}
+                onDelete={(deletedId) =>
+                  setArticles((prev) => prev.filter((a) => a._id !== deletedId))
+                }
+              />
             ))}
           </div>
         )}
